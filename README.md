@@ -24,7 +24,7 @@ func main() {
    These can be called as frequently as necessary. Changing the
     icon quickly gives the illusion of animation.
   */
-  ti.SetIcon("../icon.ico")
+  ti.SetIcon("icon.ico")
   ti.SetTooltip("おはよう世界！")
   
   // Do other stuff
