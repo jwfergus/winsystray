@@ -2,9 +2,9 @@
  Extremely simple Go windows system tray. 
  
  
- All code taken from hallazzang (below) and moved out into a simpler interface.
+ 98% of code taken from hallazzang (Super thanks to: https://github.com/hallazzang/go-tray-icons-tutorial) and moved out into a simpler interface. Added an intermediary function taken from https://github.com/getlantern/systray to allow []byte icons in addition to regular icon files.
  
- Thanks to: https://github.com/hallazzang/go-tray-icons-tutorial
+ 
 
  Worth pointing out this library: https://github.com/getlantern/systray which currently has some issue w/ windows systray stuff randomly crashing, otherwise I would have just used that. https://github.com/getlantern/systray/issues/148
  
