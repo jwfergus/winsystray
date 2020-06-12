@@ -1,8 +1,13 @@
 package winsystray
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"time"
 	"unsafe"
 
@@ -10,6 +15,20 @@ import (
 )
 
 const TrayIconMsg = WM_APP + 1
+
+// This function taken from https://github.com/getlantern/systray/blob/01dc414284987aa070498fafbcdac794657bf2e1/systray_windows.go#L772
+func iconBytesToFilePath(iconBytes []byte) (string, error) {
+	bh := md5.Sum(iconBytes)
+	dataHash := hex.EncodeToString(bh[:])
+	iconFilePath := filepath.Join(os.TempDir(), "systray_temp_icon_"+dataHash)
+
+	if _, err := os.Stat(iconFilePath); os.IsNotExist(err) {
+		if err := ioutil.WriteFile(iconFilePath, iconBytes, 0644); err != nil {
+			return "", err
+		}
+	}
+	return iconFilePath, nil
+}
 
 func wndProc(hWnd uintptr, msg uint32, wParam, lParam uintptr) uintptr {
 	switch msg {
@@ -108,7 +127,7 @@ func (ti *TrayIcon) Dispose() error {
 	return err
 }
 
-func (ti *TrayIcon) SetIcon(iconFilename string) error {
+func (ti *TrayIcon) SetIconFromFile(iconFilename string) error {
 	icon, err := LoadImage(
 		0,
 		windows.StringToUTF16Ptr(iconFilename),
@@ -124,6 +143,16 @@ func (ti *TrayIcon) SetIcon(iconFilename string) error {
 	data.UFlags |= NIF_ICON
 	data.HIcon = icon
 	_, err = Shell_NotifyIcon(NIM_MODIFY, data)
+	return err
+}
+
+func (ti *TrayIcon) SetIconFromBytes(iconBytes []byte) error {
+
+	iconFilePath, err := iconBytesToFilePath(iconBytes)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to write icon data to temp file: %v", err))
+	}
+	err = ti.SetIconFromFile(iconFilePath)
 	return err
 }
 
